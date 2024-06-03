@@ -33,5 +33,7 @@ class GameViewModel: ViewModel() {
 }
 //PLACEHOLDER CLASS - DO NOT USE
 enum class ButtonData {
-    NONE
+    NONE,
+    bye,
+    HELLO
 }
