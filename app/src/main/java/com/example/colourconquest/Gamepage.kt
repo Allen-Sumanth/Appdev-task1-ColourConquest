@@ -41,10 +41,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.colourconquest.ui.theme.BluePlayer
 import com.example.colourconquest.ui.theme.CellBackground
+import com.example.colourconquest.ui.theme.DarkBlueBackground
 import com.example.colourconquest.ui.theme.ExitX
 import com.example.colourconquest.ui.theme.GameScreenInfoBackground
 import com.example.colourconquest.ui.theme.RedPlayer
@@ -52,17 +54,71 @@ import com.example.colourconquest.ui.theme.RedPlayer
 @Composable
 fun GamePage(
     navController: NavController,
-    viewModel: GameViewModel
+    viewModel: GameViewModel,
+    redPlayerName: String = "Red",
+    bluePlayerName: String = "Blue"
 ) {
+    val redName = if(redPlayerName == " ") "Red" else redPlayerName
+    val blueName = if(bluePlayerName == " ") "Blue" else bluePlayerName
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = BluePlayer)
+            .background(color = viewModel.state.value.currentTurnColor)
             .padding(vertical = 30.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
+        var openActonCard by remember { mutableStateOf(false) }
+        if (openActonCard) {
+            Dialog(onDismissRequest = { openActonCard = false }) {
+                Card(
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier
+                        .padding(10.dp, 5.dp, 10.dp, 10.dp)
+                    //.height(325.dp),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .background(DarkBlueBackground)
+                            //.fillMaxSize()
+                            .padding(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(
+                            //Reset
+                            onClick = {
+                                openActonCard = false
+                                viewModel.gameScreenAction(UserAction.Reset)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = BluePlayer),
+                        ) {
+                            Text(text = "Reset Game", fontSize = 20.sp)
+                        }
+                        Button(
+                            //New Game - reset game+back to PlayerInfo screen
+                            onClick = {
+                                openActonCard = false
+                                viewModel.gameScreenAction(UserAction.Reset)
+                                navController.navigate(Screens.PlayerInfo.route)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = RedPlayer),
+                        ) {
+                            Text(text = "New Game", fontSize = 20.sp)
+                        }
+                    }
+                }
+            }
+        }  //opens exit action Dialog
+
+        Row( //Contains Player Name, Score, and Exit Button
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(end = 10.dp),
@@ -78,7 +134,7 @@ fun GamePage(
                     border = BorderStroke(width = 1.dp, color = Color.Black)
                 ) {
                     Text(
-                        text = "7",
+                        text = "${viewModel.state.value.blueScore}",
                         modifier = Modifier
                             .padding(vertical = 5.dp, horizontal = 30.dp)
                             .rotate(180F),
@@ -98,7 +154,7 @@ fun GamePage(
                         .clip(shape = RoundedCornerShape(10.dp))
                 ) {
                     Text(
-                        text = "ASHWIN",
+                        text = blueName,
                         modifier = Modifier
                             .padding(vertical = 5.dp, horizontal = 30.dp)
                             .rotate(180f),
@@ -112,7 +168,7 @@ fun GamePage(
             }
             Button(
                 onClick = {
-                    navController.navigate(Screens.HomePage.route)
+                    openActonCard = true
                 },
                 shape = CircleShape,
                 contentPadding = PaddingValues(0.dp),
@@ -125,7 +181,7 @@ fun GamePage(
             }
         }
 
-        LazyVerticalGrid(
+        LazyVerticalGrid( //Game Board
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .aspectRatio(ratio = 1F),
@@ -134,22 +190,50 @@ fun GamePage(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            viewModel.boardItems.forEach {
+            viewModel.boardItems.forEach { (coords, data) ->
                 item {
                     Box(
+                        contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .fillMaxSize()
                             .aspectRatio(1F)
-                            .clickable { TODO() }
+                            .clickable() {
+                                viewModel.gameScreenAction(UserAction.ButtonClicked(coords))
+                            }
                             .background(color = CellBackground, shape = RoundedCornerShape(15.dp))
                     ) {
+                        when (data) {
+                            ButtonData.Red1 -> {
+                                Red1Icon()
+                            }
 
+                            ButtonData.Red2 -> {
+                                Red2Icon()
+                            }
+
+                            ButtonData.Red3 -> {
+                                Red3Icon()
+                            }
+
+                            ButtonData.Blue1 -> {
+                                Blue1Icon()
+                            }
+
+                            ButtonData.Blue2 -> {
+                                Blue2Icon()
+                            }
+
+                            ButtonData.Blue3 -> {
+                                Blue3Icon()
+                            }
+                        }
                     }
                 }
             }
         }
 
         Row(
+            //Contains Player Name, Score
             modifier = Modifier
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.End,
@@ -168,7 +252,7 @@ fun GamePage(
                         .clip(shape = RoundedCornerShape(10.dp))
                 ) {
                     Text(
-                        text = "ANSH",
+                        text = redName,
                         modifier = Modifier
                             .padding(vertical = 5.dp, horizontal = 30.dp),
                         color = RedPlayer,
@@ -189,7 +273,7 @@ fun GamePage(
                     border = BorderStroke(width = 1.dp, color = Color.Black)
                 ) {
                     Text(
-                        text = "7",
+                        text = "${viewModel.state.value.redScore}",
                         modifier = Modifier.padding(vertical = 5.dp, horizontal = 30.dp),
                         color = RedPlayer,
                         fontSize = 30.sp
@@ -200,14 +284,14 @@ fun GamePage(
         }
 
         var openResultCard by remember { mutableStateOf(false) }
-        if(openResultCard) {
-            GameResult(onDismissRequest = {openResultCard = false})
+        if (openResultCard) {
+            GameResult(onDismissRequest = { openResultCard = false })
         }
     }
 }
 
-@Preview
+@Preview(showSystemUi = true)
 @Composable
 private fun GamePagePreview() {
-    GamePage(navController = rememberNavController(), viewModel = GameViewModel())
+    GamePage(navController = rememberNavController(), viewModel = GameViewModel(), "Red", "Blue")
 }

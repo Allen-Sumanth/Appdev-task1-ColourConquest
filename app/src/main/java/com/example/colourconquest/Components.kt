@@ -500,9 +500,76 @@ fun GameResult(modifier: Modifier = Modifier, onDismissRequest: () -> Unit) {
     }
 }
 
+@Composable
+fun Red1Icon(modifier: Modifier = Modifier) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(40.dp)) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawCircle(color = RedPlayer, radius = size.height.times(0.5f))
+        }
+        Text(text ="1", fontSize = 25.sp, color = Color.White, fontWeight = FontWeight.Bold)
+    }
+}
 
-@Preview
+@Composable
+fun Red2Icon(modifier: Modifier = Modifier) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(40.dp)) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawCircle(color = RedPlayer, radius = size.height.times(0.5f))
+        }
+        Text(text ="2", fontSize = 25.sp, color = Color.White, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun Red3Icon(modifier: Modifier = Modifier) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(40.dp)) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawCircle(color = RedPlayer, radius = size.height.times(0.5f))
+        }
+        Text(text ="3", fontSize = 25.sp, color = Color.White, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun Blue1Icon(modifier: Modifier = Modifier) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(40.dp)) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawCircle(color = BluePlayer, radius = size.height.times(0.5f))
+        }
+        Text(text ="1", fontSize = 25.sp, color = Color.White, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun Blue2Icon(modifier: Modifier = Modifier) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(40.dp)) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawCircle(color = BluePlayer, radius = size.height.times(0.5f))
+        }
+        Text(text ="2", fontSize = 25.sp, color = Color.White, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun Blue3Icon(modifier: Modifier = Modifier) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(40.dp)) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawCircle(color = BluePlayer, radius = size.height.times(0.5f))
+        }
+        Text(text ="3", fontSize = 25.sp, color = Color.White, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Preview(showSystemUi = false)
 @Composable
 private fun GamePagePreview() {
-    GamePage(navController = rememberNavController(), viewModel = GameViewModel())
+    //GamePage(navController = rememberNavController(), viewModel = GameViewModel())
+    Column {
+        Red1Icon()
+        Red2Icon()
+        Red3Icon()
+        Blue1Icon()
+        Blue2Icon()
+        Blue3Icon()
+    }
 }

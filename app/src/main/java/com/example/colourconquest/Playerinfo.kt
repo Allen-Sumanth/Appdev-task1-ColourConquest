@@ -24,6 +24,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -32,7 +36,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,6 +52,9 @@ import com.example.colourconquest.ui.theme.RedPlayer
 
 @Composable
 fun PlayerInfo(navController: NavController) {
+    var redName by remember { mutableStateOf("")}
+    var blueName by remember { mutableStateOf("")}
+
     Box(
         contentAlignment = Alignment.BottomCenter,
         modifier = Modifier
@@ -67,7 +76,7 @@ fun PlayerInfo(navController: NavController) {
                 .fillMaxSize()
                 .padding(vertical = 10.dp)
         ) {
-            Card(
+            Card( //PLAYER INFO card
                 shape = AbsoluteCutCornerShape(percent = 100),
                 colors = CardDefaults.cardColors(
                     containerColor = PlayerInfoBackground
@@ -84,8 +93,10 @@ fun PlayerInfo(navController: NavController) {
                 )
             }
             Column {
+                //Player 1(red) Row--------------------------------------------------------------------
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Player1Card()
+                    //TextField Here
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
@@ -101,18 +112,20 @@ fun PlayerInfo(navController: NavController) {
                             contentDescription = "Player Icon",
                             tint = RedPlayer,
                             modifier = Modifier
-                                .size(60.dp)
+                                .size(50.dp)
                         )
                         TextField(
-                            value = "",
-                            onValueChange = {
-                                TODO()
+                            value = redName,
+                            onValueChange = {name ->
+                                redName = name
                             },
-                            label = {
+                            placeholder = {
                                 Text(
                                     text = " Enter Player-1 Name",
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center
                                 )
                             },
                             singleLine = true,
@@ -125,13 +138,14 @@ fun PlayerInfo(navController: NavController) {
                                 unfocusedIndicatorColor = Color.Transparent,
                                 focusedIndicatorColor = Color.Transparent
                             ),
+                            textStyle = TextStyle.Default.copy(fontSize = 16.sp, textAlign = TextAlign.Center),
                             modifier = Modifier
-                                .height(25.dp)
+                                .height(50.dp)
                                 .drawBehind {
                                     drawLine(
                                         color = RedPlayer,
-                                        start = Offset(size.width.times(0.1f), size.height),
-                                        end = Offset(size.width.times(0.9f), size.height),
+                                        start = Offset(size.width.times(0.1f), size.height.times(0.8f)),
+                                        end = Offset(size.width.times(0.9f), size.height.times(0.8f)),
                                         strokeWidth = 6f,
                                         cap = StrokeCap.Round,
                                         pathEffect = PathEffect.dashPathEffect(
@@ -143,8 +157,10 @@ fun PlayerInfo(navController: NavController) {
 
                     }
                 }
+                //Player 2(Blue) Row--------------------------------------------------------------------
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Player2Card()
+                    //TextField Here
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier
@@ -160,18 +176,20 @@ fun PlayerInfo(navController: NavController) {
                             contentDescription = "Player Icon",
                             tint = BluePlayer,
                             modifier = Modifier
-                                .size(60.dp)
+                                .size(50.dp)
                         )
                         TextField(
-                            value = "",
-                            onValueChange = {
-                                TODO()
+                            value = blueName,
+                            onValueChange = {name ->
+                                blueName = name
                             },
-                            label = {
+                            placeholder = {
                                 Text(
-                                    text = " Enter Player-2 Name",
+                                    text = "Enter Player-2 Name",
                                     fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center
                                 )
                             },
                             singleLine = true,
@@ -184,13 +202,14 @@ fun PlayerInfo(navController: NavController) {
                                 unfocusedIndicatorColor = Color.Transparent,
                                 focusedIndicatorColor = Color.Transparent
                             ),
+                            textStyle = TextStyle.Default.copy(fontSize = 16.sp, textAlign = TextAlign.Center),
                             modifier = Modifier
-                                .height(25.dp)
+                                .height(50.dp)
                                 .drawBehind {
                                     drawLine(
                                         color = BluePlayer,
-                                        start = Offset(size.width.times(0.1f), size.height),
-                                        end = Offset(size.width.times(0.9f), size.height),
+                                        start = Offset(size.width.times(0.1f), size.height.times(0.8f)),
+                                        end = Offset(size.width.times(0.9f), size.height.times(0.8f)),
                                         strokeWidth = 6f,
                                         cap = StrokeCap.Round,
                                         pathEffect = PathEffect.dashPathEffect(
@@ -204,9 +223,10 @@ fun PlayerInfo(navController: NavController) {
                 }
             }
             Spacer(modifier = Modifier.height(100.dp))
+
             Button(
                 onClick = {
-                    navController.navigate(Screens.GamePage.route)
+                    navController.navigate(Screens.GamePage.route + "/$redName" + " " + "/$blueName"+" ")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = BluePlayer),
                 modifier = Modifier.padding(20.dp)
@@ -220,7 +240,7 @@ fun PlayerInfo(navController: NavController) {
             }
 
         }
-        Row(
+        Row( //Containing GameIcon
             modifier = Modifier.padding(20.dp)
         ) {
             GameIcon()
