@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.colourconquest.ui.theme.BluePlayer
 import com.example.colourconquest.ui.theme.RedPlayer
+import kotlin.system.exitProcess
 
 class GameViewModel : ViewModel() {
     var state = mutableStateOf(GameState())
@@ -39,96 +40,175 @@ class GameViewModel : ViewModel() {
         Pair(4, 3) to ButtonData.None,
         Pair(4, 4) to ButtonData.None,
     )
-    fun gameScreenAction(action: UserAction) {
-        when (action) {
-            is UserAction.Reset -> {
-                resetGame()
-            }
 
-            is UserAction.ButtonClicked -> {
-                if (boardItems[action.coords] == ButtonData.None) {
-                    updateButton(action.coords)
-                }
-            }
-        }
-    }
+    var boardState by mutableStateOf(boardItems)
 
-    private fun updateButton(coords: Pair<Int, Int>) {
+    var highScores: MutableMap<String, Int> = mutableMapOf()
+
+    fun updateButton(coords: Pair<Int, Int>, primaryIteration: Boolean) {
         val (xCoord, yCoord) = coords
+        var actionDone = false
+
         if (state.value.currentTurnColor == RedPlayer) {
-            if (boardItems[coords] == ButtonData.None) {
-                boardItems[coords] = ButtonData.Red1
+            if (boardState[coords] == ButtonData.None) {
+                boardState[coords] = ButtonData.Red1
                 state.value = state.value.copy(
-                    redScore = state.value.redScore + 1,
-                    currentTurnColor = BluePlayer,
+                    redScore = state.value.redScore + 1
                 )
+                actionDone = true
             }
-            else if (boardItems[coords] == ButtonData.Red1 || boardItems[coords] == ButtonData.Blue1) {
-                boardItems[coords] = ButtonData.Red2
+            else if (boardState[coords] == ButtonData.Red1) {
+                boardState[coords] = ButtonData.Red2
                 state.value = state.value.copy(
-                    redScore = state.value.redScore + 1,
-                    currentTurnColor = BluePlayer,
+                    redScore = state.value.redScore + 1
                 )
-            } else if (boardItems[coords] == ButtonData.Red2 || boardItems[coords] == ButtonData.Blue2) {
-                boardItems[coords] = ButtonData.Red3
-                state.value = state.value.copy(
-                    redScore = state.value.redScore + 1,
-                    currentTurnColor = BluePlayer,
-                )
-            } else if (boardItems[coords] == ButtonData.Red3 || boardItems[coords] == ButtonData.Blue3) {
-                boardItems[coords] = ButtonData.None
-                state.value = state.value.copy(
-                    redScore = state.value.redScore - 3,
-                    currentTurnColor = BluePlayer,
-                )
-//                if (xCoord < 4) updateButton(Pair(xCoord + 1, yCoord))
-//                if (yCoord < 4) updateButton(Pair(xCoord, yCoord + 1))
-//                if (xCoord > 0) updateButton(Pair(xCoord - 1, yCoord))
-//                if (yCoord > 0) updateButton(Pair(xCoord, yCoord - 1))
+                actionDone = true
             }
-        } else if (state.value.currentTurnColor == BluePlayer) {
-            if (boardItems[coords] == ButtonData.None){
-                boardItems[coords] = ButtonData.Blue1
+            else if (boardState[coords] == ButtonData.Red2) {
+                boardState[coords] = ButtonData.Red3
                 state.value = state.value.copy(
-                    blueScore = state.value.blueScore + 1,
-                    currentTurnColor = RedPlayer,
+                    redScore = state.value.redScore + 1
                 )
+                actionDone = true
             }
-            else if (boardItems[coords] == ButtonData.Blue1 || boardItems[coords] == ButtonData.Red1) {
-                boardItems[coords] = ButtonData.Blue2
+            else if (boardState[coords] == ButtonData.Red3) {
+                boardState[coords] = ButtonData.None
                 state.value = state.value.copy(
-                    blueScore = state.value.blueScore + 1,
-                    currentTurnColor = RedPlayer,
+                    redScore = state.value.redScore - 3
                 )
-            } else if (boardItems[coords] == ButtonData.Blue2 || boardItems[coords] == ButtonData.Red2) {
-                boardItems[coords] = ButtonData.Blue3
+                actionDone = true
+                if (xCoord < 4) updateButton(Pair(xCoord + 1, yCoord), false)
+                if (yCoord < 4) updateButton(Pair(xCoord, yCoord + 1), false)
+                if (xCoord > 0) updateButton(Pair(xCoord - 1, yCoord), false)
+                if (yCoord > 0) updateButton(Pair(xCoord, yCoord - 1), false)
+            }
+            else if (boardState[coords] == ButtonData.Blue1 && !primaryIteration) {
+                boardState[coords] = ButtonData.Red2
                 state.value = state.value.copy(
-                    blueScore = state.value.blueScore + 1,
-                    currentTurnColor = RedPlayer,
+                    redScore = state.value.redScore + 2,
+                    blueScore = state.value.blueScore - 1
                 )
-            } else if (boardItems[coords] == ButtonData.Blue3 || boardItems[coords] == ButtonData.Red3) {
-                boardItems[coords] = ButtonData.None
+                actionDone = true
+            }
+            else if (boardState[coords] == ButtonData.Blue2 && !primaryIteration) {
+                boardState[coords] = ButtonData.Red3
+                state.value = state.value.copy(
+                    redScore = state.value.redScore + 3,
+                    blueScore = state.value.blueScore - 2,
+                )
+                actionDone = true
+            }
+            else if (boardState[coords] == ButtonData.Blue3 && !primaryIteration) {
+                boardState[coords] = ButtonData.None
                 state.value = state.value.copy(
                     blueScore = state.value.blueScore - 3,
-                    currentTurnColor = RedPlayer,
                 )
-//                if (xCoord < 4) updateButton(Pair(xCoord + 1, yCoord))
-//                if (yCoord < 4) updateButton(Pair(xCoord, yCoord + 1))
-//                if (xCoord > 0) updateButton(Pair(xCoord - 1, yCoord))
-//                if (yCoord > 0) updateButton(Pair(xCoord, yCoord - 1))
+                actionDone = true
+                if (xCoord < 4) updateButton(Pair(xCoord + 1, yCoord), primaryIteration = false)
+                if (yCoord < 4) updateButton(Pair(xCoord, yCoord + 1), primaryIteration = false)
+                if (xCoord > 0) updateButton(Pair(xCoord - 1, yCoord), primaryIteration = false)
+                if (yCoord > 0) updateButton(Pair(xCoord, yCoord - 1), primaryIteration = false)
+            }
+
+            if (actionDone) {
+                state.value = state.value.copy(
+                        currentTurnColor = if (!primaryIteration) RedPlayer else BluePlayer,
+                    )
             }
         }
+        else if (state.value.currentTurnColor == BluePlayer) {
+            if (boardState[coords] == ButtonData.None){
+                boardState[coords] = ButtonData.Blue1
+                state.value = state.value.copy(
+                    blueScore = state.value.blueScore + 1,
+                    currentTurnColor = if (!primaryIteration) BluePlayer else RedPlayer,
+                )
+                actionDone = true
+            }
+            else if (boardState[coords] == ButtonData.Blue1) {
+                boardState[coords] = ButtonData.Blue2
+                state.value = state.value.copy(
+                    blueScore = state.value.blueScore + 1
+                )
+                actionDone = true
+            }
+            else if (boardState[coords] == ButtonData.Blue2) {
+                boardState[coords] = ButtonData.Blue3
+                state.value = state.value.copy(
+                    blueScore = state.value.blueScore + 1
+                )
+                actionDone = true
+            }
+            else if (boardState[coords] == ButtonData.Blue3) {
+                boardState[coords] = ButtonData.None
+                state.value = state.value.copy(
+                    blueScore = state.value.blueScore - 3,
+                )
+                actionDone = true
+                if (xCoord < 4) updateButton(Pair(xCoord + 1, yCoord), primaryIteration = false)
+                if (yCoord < 4) updateButton(Pair(xCoord, yCoord + 1), primaryIteration = false)
+                if (xCoord > 0) updateButton(Pair(xCoord - 1, yCoord), primaryIteration = false)
+                if (yCoord > 0) updateButton(Pair(xCoord, yCoord - 1), primaryIteration = false)
+            }
+            else if (boardState[coords] == ButtonData.Red1 && !primaryIteration) {
+                boardState[coords] = ButtonData.Blue2
+                state.value = state.value.copy(
+                    redScore = state.value.redScore - 1,
+                    blueScore = state.value.blueScore + 2,
+                )
+                actionDone = true
+            }
+            else if (boardState[coords] == ButtonData.Red2 && !primaryIteration) {
+                boardState[coords] = ButtonData.Blue3
+                state.value = state.value.copy(
+                    redScore = state.value.redScore - 2,
+                    blueScore = state.value.blueScore + 3,
+                )
+                actionDone = true
+            }
+            else if (boardState[coords] == ButtonData.Red3 && !primaryIteration) {
+                boardState[coords] = ButtonData.None
+                state.value = state.value.copy(
+                    redScore = state.value.redScore - 3,
+                )
+                actionDone = true
+                if (xCoord < 4) updateButton(Pair(xCoord + 1, yCoord), primaryIteration = false)
+                if (yCoord < 4) updateButton(Pair(xCoord, yCoord + 1), primaryIteration = false)
+                if (xCoord > 0) updateButton(Pair(xCoord - 1, yCoord), primaryIteration = false)
+                if (yCoord > 0) updateButton(Pair(xCoord, yCoord - 1), primaryIteration = false)
+            }
+
+            if (actionDone) {
+                state.value = state.value.copy(
+                    currentTurnColor = if (!primaryIteration) BluePlayer else RedPlayer,
+                )
+            }
+        }
+
+        checkForWin()
+        if (state.value.hasWon) return
     }
 
-    private fun resetGame() { //change all board values to 0, reset scores, and close the dialog
-        boardItems.forEach { (coords, data) ->
-            boardItems[coords] = ButtonData.None
+    fun checkForWin(): Boolean {
+        if((state.value.redScore == 0 && state.value.blueScore > 1) || (state.value.blueScore == 0 && state.value.redScore > 1)) {
+            state.value = state.value.copy(
+                hasWon = true,
+            )
+            return true
+        } else return false
+    }
+
+    fun resetGame() { //change all board values to 0, reset scores, and close the dialog
+        boardState.forEach { (coords, data) ->
+            boardState[coords] = ButtonData.None
             state.value = state.value.copy(
                 redScore = 0,
                 blueScore = 0,
-                currentTurnColor = RedPlayer
+                currentTurnColor = RedPlayer,
+                hasWon = false
             )
         }
     }
+
 
 }

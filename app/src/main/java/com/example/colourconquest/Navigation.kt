@@ -18,7 +18,7 @@ fun Navigation() {
     NavHost(navController = navController, startDestination = Screens.HomePage.route) {
         //Describing home screen
         composable(route = Screens.HomePage.route) {
-            HomePage(navController = navController)
+            HomePage(navController = navController, viewModel = viewModel)
         }
         //Describing Player initialization screen
         composable(route = Screens.PlayerInfo.route) {

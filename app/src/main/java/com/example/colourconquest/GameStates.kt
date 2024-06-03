@@ -10,6 +10,7 @@ data class GameState(
     val hasWon: Boolean = false
 )
 
+
 open class ButtonData(color: PlayerColor, value: Int) {
     object None : ButtonData(PlayerColor.NONE, 0)
     object Red1 : ButtonData(PlayerColor.RED, 1)
